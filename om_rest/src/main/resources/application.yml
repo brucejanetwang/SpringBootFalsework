@@ -23,6 +23,8 @@ spring:
 
 
 logging:
-  level: debug
+  level:
+     root: warn
+     com.bruce_janet: debug
   path: logs/
   file: om_rest.log
