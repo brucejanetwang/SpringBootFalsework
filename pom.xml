@@ -23,6 +23,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
+        <fastjson.version>1.2.45</fastjson.version>
     </properties>
  <dependencies>
         <dependency>
@@ -44,5 +45,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+         <dependency>
+             <groupId>com.alibaba</groupId>
+             <artifactId>fastjson</artifactId>
+             <version>${fastjson.version}</version>
+         </dependency>
 </dependencies>
 </project>
