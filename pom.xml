@@ -16,6 +16,8 @@
 
     <modules>
         <module>om_rest</module>
+        <module>springaop</module>
+        <module>sysmonitor</module>
     </modules>
 
     <properties>
@@ -32,6 +34,12 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+     <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpclient</artifactId>
+         <version>4.0-beta1</version>
+     </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -50,5 +58,16 @@
              <artifactId>fastjson</artifactId>
              <version>${fastjson.version}</version>
          </dependency>
-</dependencies>
+     <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpcore</artifactId>
+         <version>4.4.3</version>
+     </dependency>
+     <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpmime</artifactId>
+         <version>4.5.1</version>
+     </dependency>
+
+ </dependencies>
 </project>

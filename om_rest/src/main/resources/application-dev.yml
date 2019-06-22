@@ -1,3 +1,4 @@
 
 business:
-  OMServerUrlPrex: http://10.150.0.214:5080/openmeetings/services
+  OMServerUrlPrex2: http://10.50.1.132:9880/openmeetings
+  OMServerUrlPrex: http://127.0.0.1:5080/openmeetings

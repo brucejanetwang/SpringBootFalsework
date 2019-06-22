@@ -9,6 +9,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -26,48 +28,81 @@ public class UserServiceProxy {
     @Autowired
     RestTemplate restTemplate;
 
+
+    private String mysid = null;
+    private String mytime = String.valueOf(System.currentTimeMillis());
+
     public String  login(){
         JSONObject postData = new JSONObject();
 
-        String url =  OMServerUrlPrex+ "/user/login?user=om_admin&pass=1Q2w3e4r5t^y";
+        String url =  OMServerUrlPrex+ "/services/user/login?user=om_admin&pass=1Q2w3e4r5t^y";
         try {
             JSONObject resultJson = restTemplate.getForEntity(url, JSONObject.class).getBody();
            // JSONObject resultJson = restTemplate.postForEntity(url, postData, JSONObject.class).getBody();
             logger.info("resultJson:"+resultJson.toString());
-            return "ok";
+
+            mytime =  String.valueOf(System.currentTimeMillis());
+
+            mysid = resultJson.getJSONObject("serviceResult").getString("message");
+            return resultJson.toString();
         }catch (Exception e){
             return "error";
         }
     }
 
-    public String  hash(String sid){
+    public String  hash( String roomId){
+
         JSONObject postData = new JSONObject();
-        JSONObject user  =  new JSONObject();
+
+
+        //externalId+externalType 存在就不创建，否则创建
+        JSONObject user   =  new JSONObject();
+        user.put("login","huanglin_extern");
+        user.put("externalId","10001");
+        user.put("externalType","study");
+
+        user.put("email","huanglin_extern@126.com");
+        user.put("firstname","huang");
+        user.put("lastname","lin");
+
+
+
         JSONObject options  =  new JSONObject();
-        user.put("login","huanglin");
-        user.put("externalId","4");
-        user.put("externalType","user");
-        options.put("roomId",7);
+        options.put("roomId",roomId);
         options.put("moderator",false);
 
-        HashMap<String,JSONObject> request = new   HashMap<String,JSONObject>();
 
-        request.put("user",user);
-        request.put("options",options);
+        MultiValueMap<String, Object> request = new LinkedMultiValueMap<>();
+        request.add("user",user.toJSONString());
+        request.add("options",options.toJSONString());
 
         HttpHeaders headers = new HttpHeaders();
         //定义请求参数类型，这里用json所以是MediaType.APPLICATION_JSON
-        headers.setContentType((MediaType.APPLICATION_JSON));
-        HttpEntity<Map<String, JSONObject>> postData2 = new HttpEntity<Map<String, JSONObject>>(request, headers);
-        String url =  OMServerUrlPrex+ "/user/hash?sid="+sid;
+        headers.setContentType(MediaType.valueOf((MediaType.APPLICATION_FORM_URLENCODED_VALUE)));
+
+        HttpEntity<MultiValueMap<String, Object>> postData2 = new HttpEntity<MultiValueMap<String, Object>>(request, headers);
+
+        String url =  OMServerUrlPrex+ "/services/user/hash?sid="+getSid();
         try {
             JSONObject resultJson = restTemplate.postForEntity(url, postData2, JSONObject.class).getBody();
             logger.info("resultJson:"+resultJson.toString());
-            return "ok";
+            String hash = resultJson.getJSONObject("serviceResult").getString("message");
+            return OMServerUrlPrex+ "/hash?secure="+hash;
         }catch (Exception e){
             return "error";
         }
     }
 
+    public String getSid() {
 
+        if(this.mysid == null){
+            this.login();
+        }
+        // 假如没超过10分钟
+        if (Long.valueOf(mytime) + 1000 * 60 * 10 <= System.currentTimeMillis()) {
+            this.login();
+        }
+
+        return this.mysid;
+    }
 }

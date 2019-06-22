@@ -13,14 +13,11 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
 
+@Service("roomServiceProxy")
+public class RoomServiceProxy {
 
-@Service("userServiceProxy")
-public class UserServiceProxy {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceProxy.class);
+    private static final Logger logger = LoggerFactory.getLogger(RoomServiceProxy.class);
 
     @Value("${business.OMServerUrlPrex}")
     private String OMServerUrlPrex;
@@ -28,66 +25,45 @@ public class UserServiceProxy {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    UserServiceProxy userServiceProxy;
 
-    private String mysid;
 
-    public String  login(){
-        JSONObject postData = new JSONObject();
-
-        String url =  OMServerUrlPrex+ "/services/user/login?user=om_admin&pass=1Q2w3e4r5t^y";
+    public String  count(String roomId){
+        String url =  OMServerUrlPrex+ "/services/room/count/"+roomId+"?sid="+userServiceProxy.getSid();
         try {
             JSONObject resultJson = restTemplate.getForEntity(url, JSONObject.class).getBody();
-           // JSONObject resultJson = restTemplate.postForEntity(url, postData, JSONObject.class).getBody();
-            logger.info("resultJson:"+resultJson.toString());
-            mysid = resultJson.getJSONObject("serviceResult").getString("message");
             return resultJson.toString();
         }catch (Exception e){
             return "error";
         }
     }
 
-    public String  hash(String sid){
-        if(sid==null){
-            sid = this.mysid;
-        }
-        JSONObject postData = new JSONObject();
 
-        JSONObject user_zj_extern  =  new JSONObject();
-        user_zj_extern.put("login","zhoujia");
-        user_zj_extern.put("externalId","4");
-        user_zj_extern.put("externalType","external");
-
-
-        JSONObject user   =  new JSONObject();
-        user.put("login","huanglin");
-        user.put("externalId","6");
-        user.put("externalType","user");
-
-        JSONObject options  =  new JSONObject();
-        options.put("roomId",7);
-        options.put("moderator",false);
-
-
+    public String add(){
+        String url =  OMServerUrlPrex+ "/services/room?sid="+userServiceProxy.getSid();
+        JSONObject room = new JSONObject();
+        room.put("type","conference");
+        room.put("name","test2");
+        room.put("capacity",12);
+        room.put("comment","comment test");
+        room.put("isPublic",true);
+        room.put("allowRecording",true);
+        room.put("allowUserQuestions",true);
+      //  {"roomDTO":{"id":11,"name":"","comment":"","capacity":4,"appointment":false,"isPublic":false,"demo":false,"closed":false,"redirectUrl":"","moderated":false,"allowUserQuestions":false,"allowRecording":false,"waitForRecording":false,"audioOnly":false}}
         MultiValueMap<String, Object> request = new LinkedMultiValueMap<>();
-        request.add("user",user.toJSONString());
-        request.add("options",options.toJSONString());
-
+        request.add("room",room.toJSONString());
         HttpHeaders headers = new HttpHeaders();
-        //定义请求参数类型，这里用json所以是MediaType.APPLICATION_JSON
-        headers.setContentType(MediaType.valueOf((MediaType.APPLICATION_FORM_URLENCODED_VALUE)));
-
-        HttpEntity<MultiValueMap<String, Object>> postData2 = new HttpEntity<MultiValueMap<String, Object>>(request, headers);
-
-        String url =  OMServerUrlPrex+ "/services/user/hash?sid="+sid;
+       headers.setContentType(MediaType.valueOf((MediaType.APPLICATION_FORM_URLENCODED_VALUE)));
+        HttpEntity<MultiValueMap<String, Object>> postData = new HttpEntity<MultiValueMap<String, Object>>(request, headers);
         try {
-            JSONObject resultJson = restTemplate.postForEntity(url, postData2, JSONObject.class).getBody();
+            JSONObject resultJson = restTemplate.postForEntity(url, postData, JSONObject.class).getBody();
             logger.info("resultJson:"+resultJson.toString());
-            String hash = resultJson.getJSONObject("serviceResult").getString("message");
-            return OMServerUrlPrex+ "hash?secure="+hash;
+            return resultJson.toString();
+
         }catch (Exception e){
-            return "error";
+            return e.getMessage();
         }
     }
-
 
 }
