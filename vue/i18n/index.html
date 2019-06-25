@@ -5,12 +5,14 @@
 <body>
   <div id="app">
      <h1>{{ $t("message.hello") }}</h1>
+     <h1>{{ $t("music") }}</h1>
+     <button @click="onChangeLang">切换语言</button>
     <h1> {{ message1 }}</h1>
      <input v-model="message1">
 
     <p>Using v-html directive: <span v-html="rawHtml"></span></p>
 
-    <span v-bind:title="message">
+    <span v-bind:title="message1">
       {{time}}
     </span>
     <p>{{echo}}</p>
@@ -42,12 +44,13 @@
   <script src="https://unpkg.com/vue/dist/vue.js"></script>
   <script src="https://unpkg.com/vue-i18n/dist/vue-i18n.js"></script>
 
+  <script src="en.js"></script>
+
+  <script src="zh.js"></script>
 
   <script>
+  //console.log(en_message)
 
-import en_message from './en.js'
-import zh_message from './zh.js'
-  alert(zh_message)
   // 准备翻译的语言环境信息
   const messages = {
     en: {
@@ -67,14 +70,14 @@ import zh_message from './zh.js'
     }
   }
   // 通过选项创建 VueI18n 实例
-  const i18n = new VueI18n({
+  const i18n_local = new VueI18n({
     locale: 'zh', // 设置地区
     messages, // 设置地区信息
   })
 
   // 通过选项创建 VueI18n 实例
-  const i18n2 = new VueI18n({
-    locale: 'zh', // 设置地区
+  const i18n = new VueI18n({
+    locale: 'en', // 设置地区
     messages: {
       'en': en_message,
       'zh': zh_message
@@ -86,7 +89,7 @@ import zh_message from './zh.js'
     i18n,
     data: {
       message1: 'Hello Vue!',
-      typea: "A",
+      type: "A",
       rawHtml:"<a href='www.baidu.com'>baidu</a>",
       time:  new Date().toLocaleString(),
       todos: [
@@ -101,6 +104,9 @@ import zh_message from './zh.js'
       }
     },
     methods:{
+      onChangeLang: function(){
+        this.$i18n.locale= 'zh'
+      },
       onclick: function () {
       this.time = this.time.split('').reverse().join('')
       }
